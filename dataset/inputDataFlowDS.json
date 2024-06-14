@@ -1,0 +1,46 @@
+{
+	"name": "inputDataFlowDS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "azBlogStrg_dataFlow",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "AP_Invoice_Entry_Dtls.csv",
+				"folderPath": "Kanishk",
+				"container": "adf-container-test1"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Title",
+				"type": "String"
+			},
+			{
+				"name": "Vendor_ID",
+				"type": "String"
+			},
+			{
+				"name": "GL_Date",
+				"type": "String"
+			},
+			{
+				"name": "AP_Control_Acct",
+				"type": "String"
+			},
+			{
+				"name": "Amount",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

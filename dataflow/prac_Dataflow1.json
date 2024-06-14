@@ -1,0 +1,80 @@
+{
+	"name": "prac_Dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "inputDataFlowDS",
+						"type": "DatasetReference"
+					},
+					"name": "srcInputDataFlow"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "outputDataFlowDS",
+						"type": "DatasetReference"
+					},
+					"name": "CleanRecords"
+				},
+				{
+					"dataset": {
+						"referenceName": "outputDataFlowDS",
+						"type": "DatasetReference"
+					},
+					"name": "VendorCount"
+				}
+			],
+			"transformations": [
+				{
+					"name": "drvColDataFlow"
+				},
+				{
+					"name": "aggregate1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Title as string,",
+				"          Vendor_ID as string,",
+				"          GL_Date as string,",
+				"          AP_Control_Acct as string,",
+				"          Amount as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> srcInputDataFlow",
+				"srcInputDataFlow derive(AP_Control_Acct = replace(AP_Control_Acct, \"-\", \"\")) ~> drvColDataFlow",
+				"drvColDataFlow aggregate(groupBy(Vendor_ID),",
+				"     vendorCount = count()) ~> aggregate1",
+				"drvColDataFlow sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Name as string,",
+				"          Category as string,",
+				"          Status as string,",
+				"          Error as string",
+				"     ),",
+				"     partitionFileNames:['outputDataflowFinal.csv'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> CleanRecords",
+				"aggregate1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          Name as string,",
+				"          Category as string,",
+				"          Status as string,",
+				"          Error as string",
+				"     ),",
+				"     partitionFileNames:['vendorCountOutput'],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> VendorCount"
+			]
+		}
+	}
+}

@@ -1,0 +1,6 @@
+{
+	"name": "azSelfHosted-IR",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}

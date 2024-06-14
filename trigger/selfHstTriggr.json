@@ -1,0 +1,29 @@
+{
+	"name": "selfHstTriggr",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "ADF-SelfHost",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"src_tableNamePipeline": "percentagetmp",
+					"dest_tableNamePipeline": "percentagetmp_2"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 15,
+				"startTime": "2024-02-14T09:16:00",
+				"endTime": "2024-02-14T09:20:00",
+				"timeZone": "Pacific Standard Time"
+			}
+		}
+	}
+}

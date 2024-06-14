@@ -1,0 +1,36 @@
+{
+	"name": "selfHost_SQLDS",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "selfHost_Sql_LnkSrv",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"tblName": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [
+			{
+				"name": "TransID",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "Amount",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": {
+				"value": "@dataset().tblName",
+				"type": "Expression"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,14 @@
+{
+	"name": "ADF-TestPrac",
+	"properties": {
+		"globalConfigurations": {
+			"PipelineBillingEnabled": "false"
+		}
+	},
+	"location": "canadacentral",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "af9bae7e-a4c1-473f-a411-986886e3477e",
+		"tenantId": "42e34a19-70a0-403f-aa01-1c990d16740b"
+	}
+}

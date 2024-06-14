@@ -1,0 +1,27 @@
+{
+	"name": "outputFolderDataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedService_adfStrgPrac1",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"FolderName": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": {
+					"value": "@dataset().FolderName",
+					"type": "Expression"
+				},
+				"container": "adf-container-test1"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

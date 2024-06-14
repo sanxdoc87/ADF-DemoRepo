@@ -1,0 +1,54 @@
+{
+	"name": "ADF_Prac2_DeleteActivity",
+	"properties": {
+		"activities": [
+			{
+				"name": "Delete the strg output files",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "filesDeleted",
+						"value": "All csv files deleted"
+					}
+				],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "outputFolderDataset",
+						"type": "DatasetReference",
+						"parameters": {
+							"FolderName": {
+								"value": "'Output'",
+								"type": "Expression"
+							}
+						}
+					},
+					"logStorageSettings": {
+						"linkedServiceName": {
+							"referenceName": "linkedService_adfStrgPrac1",
+							"type": "LinkedServiceReference"
+						},
+						"path": "adf-container-test1/output"
+					},
+					"enableLogging": true,
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
+						"wildcardFileName": "*.xlsx",
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2024-03-19T05:47:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

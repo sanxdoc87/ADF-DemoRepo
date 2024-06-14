@@ -1,0 +1,26 @@
+{
+	"name": "MasterPipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "ExecuteCopyActivity",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "ADF_Prac1_CopyActivity",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2024-03-14T05:19:20Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

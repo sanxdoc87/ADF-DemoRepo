@@ -1,0 +1,25 @@
+{
+	"name": "schdTrrg",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "ADF_Prac1_CopyActivity",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 2,
+				"startTime": "2024-02-03T02:50:00",
+				"endTime": "2024-02-03T03:00:00",
+				"timeZone": "Pacific Standard Time"
+			}
+		}
+	}
+}

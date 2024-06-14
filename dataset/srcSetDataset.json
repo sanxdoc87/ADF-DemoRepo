@@ -1,0 +1,24 @@
+{
+	"name": "srcSetDataset",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedService_adfStrgPrac1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"folderPath": "setVarFolder",
+				"container": "adf-container-test1"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,20 @@
+{
+	"name": "inputDataSet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "linkedService_adfStrgPrac1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "SSA_Support_Query.txt",
+				"folderPath": "input",
+				"container": "adf-container-test1"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

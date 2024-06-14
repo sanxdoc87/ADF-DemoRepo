@@ -1,0 +1,85 @@
+{
+	"name": "ADF-SelfHost",
+	"properties": {
+		"activities": [
+			{
+				"name": "CopyRec_SijianTestDB",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "dbo.@{pipeline().parameters.src_tableNamePipeline}"
+					},
+					{
+						"name": "Destination",
+						"value": "dbo.@{pipeline().parameters.dest_tableNamePipeline}"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "selfHost_SQLDS",
+						"type": "DatasetReference",
+						"parameters": {
+							"tblName": {
+								"value": "@pipeline().parameters.src_tableNamePipeline",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "selfHost_SQLDS",
+						"type": "DatasetReference",
+						"parameters": {
+							"tblName": {
+								"value": "@pipeline().parameters.dest_tableNamePipeline",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"src_tableNamePipeline": {
+				"type": "string"
+			},
+			"dest_tableNamePipeline": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-02-26T07:19:08Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

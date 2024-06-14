@@ -1,0 +1,17 @@
+{
+	"name": "selfHost_Sql_LnkSrv",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "SqlServer",
+		"typeProperties": {
+			"connectionString": "integrated security=True;data source=PCD01APP04;initial catalog=sijian_test",
+			"userName": "PCDL\\sandip.pandey",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJlMzY5YTQwNC1mMTk4LTQyOTctOWNiNS1hYjgxYTJmNWViMDIiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "azSelfHosted-IR",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

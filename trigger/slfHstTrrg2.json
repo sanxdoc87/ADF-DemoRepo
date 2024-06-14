@@ -1,0 +1,29 @@
+{
+	"name": "slfHstTrrg2",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "ADF-SelfHost",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"src_tableNamePipeline": "RevBud_p1",
+					"dest_tableNamePipeline": "RevBud_pp"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Minute",
+				"interval": 15,
+				"startTime": "2024-02-14T09:15:00",
+				"endTime": "2024-02-14T09:20:00",
+				"timeZone": "Pacific Standard Time"
+			}
+		}
+	}
+}
