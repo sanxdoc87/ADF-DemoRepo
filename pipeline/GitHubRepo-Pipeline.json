@@ -1,6 +1,17 @@
 {
 	"name": "GitHubRepo-Pipeline",
 	"properties": {
+		"activities": [
+			{
+				"name": "weightDemo",
+				"type": "Wait",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"waitTimeInSeconds": 1
+				}
+			}
+		],
 		"annotations": []
 	}
 }
