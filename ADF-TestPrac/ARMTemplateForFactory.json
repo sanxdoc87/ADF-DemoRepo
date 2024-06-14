@@ -965,6 +965,35 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/demoCsv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "azBlogStrg_dataFlow",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "outputDataflowFinal.csv",
+						"folderPath": "output",
+						"container": "adf-container-test1"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/azBlogStrg_dataFlow')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/inputDataFlowDS')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
