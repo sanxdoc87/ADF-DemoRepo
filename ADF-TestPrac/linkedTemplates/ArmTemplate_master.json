@@ -1,0 +1,155 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "ADF-TestPrac"
+		},
+		"azBlogStrg_dataFlow_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'azBlogStrg_dataFlow'"
+		},
+		"az_OpnDckTknVal_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'az_OpnDckTknVal'"
+		},
+		"dynamicLinkedServices_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'dynamicLinkedServices'",
+			"defaultValue": "Integrated Security=False;Data Source=@{linkedService().ServerName};Initial Catalog=@{linkedService().DatabaseName};User ID=@{linkedService().UserName};Password=@{linkedService().Password}"
+		},
+		"linkedService_adfStrgPrac1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'linkedService_adfStrgPrac1'"
+		},
+		"selfHost_Sql_LnkSrv_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'selfHost_Sql_LnkSrv'",
+			"defaultValue": "Integrated Security=True;Data Source=PCD01APP04;Initial Catalog=sijian_test"
+		},
+		"selfHost_Sql_LnkSrv_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'selfHost_Sql_LnkSrv'"
+		},
+		"RestService1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://neutron.opendock.com/auth/login"
+		},
+		"az_OpnDckTknVal_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://azsynapsegen2.dfs.core.windows.net/"
+		},
+		"selfHost_Sql_LnkSrv_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "PCDL\\sandip.pandey"
+		},
+		"selfHstTriggr_properties_ADF-SelfHost_parameters_src_tableNamePipeline": {
+			"type": "string",
+			"defaultValue": "percentagetmp"
+		},
+		"selfHstTriggr_properties_ADF-SelfHost_parameters_dest_tableNamePipeline": {
+			"type": "string",
+			"defaultValue": "percentagetmp_2"
+		},
+		"slfHstTrrg2_properties_ADF-SelfHost_parameters_src_tableNamePipeline": {
+			"type": "string",
+			"defaultValue": "RevBud_p1"
+		},
+		"slfHstTrrg2_properties_ADF-SelfHost_parameters_dest_tableNamePipeline": {
+			"type": "string",
+			"defaultValue": "RevBud_pp"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI to storage account containing linked ARM templates"
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Sas token to storage account containing linked ARM templates"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "ADF-TestPrac_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"azBlogStrg_dataFlow_connectionString": {
+						"value": "[parameters('azBlogStrg_dataFlow_connectionString')]"
+					},
+					"az_OpnDckTknVal_accountKey": {
+						"value": "[parameters('az_OpnDckTknVal_accountKey')]"
+					},
+					"dynamicLinkedServices_connectionString": {
+						"value": "[parameters('dynamicLinkedServices_connectionString')]"
+					},
+					"linkedService_adfStrgPrac1_connectionString": {
+						"value": "[parameters('linkedService_adfStrgPrac1_connectionString')]"
+					},
+					"selfHost_Sql_LnkSrv_connectionString": {
+						"value": "[parameters('selfHost_Sql_LnkSrv_connectionString')]"
+					},
+					"selfHost_Sql_LnkSrv_password": {
+						"value": "[parameters('selfHost_Sql_LnkSrv_password')]"
+					},
+					"RestService1_properties_typeProperties_url": {
+						"value": "[parameters('RestService1_properties_typeProperties_url')]"
+					},
+					"az_OpnDckTknVal_properties_typeProperties_url": {
+						"value": "[parameters('az_OpnDckTknVal_properties_typeProperties_url')]"
+					},
+					"selfHost_Sql_LnkSrv_properties_typeProperties_userName": {
+						"value": "[parameters('selfHost_Sql_LnkSrv_properties_typeProperties_userName')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "ADF-TestPrac_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2018-02-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"selfHstTriggr_properties_ADF-SelfHost_parameters_src_tableNamePipeline": {
+						"value": "[parameters('selfHstTriggr_properties_ADF-SelfHost_parameters_src_tableNamePipeline')]"
+					},
+					"selfHstTriggr_properties_ADF-SelfHost_parameters_dest_tableNamePipeline": {
+						"value": "[parameters('selfHstTriggr_properties_ADF-SelfHost_parameters_dest_tableNamePipeline')]"
+					},
+					"slfHstTrrg2_properties_ADF-SelfHost_parameters_src_tableNamePipeline": {
+						"value": "[parameters('slfHstTrrg2_properties_ADF-SelfHost_parameters_src_tableNamePipeline')]"
+					},
+					"slfHstTrrg2_properties_ADF-SelfHost_parameters_dest_tableNamePipeline": {
+						"value": "[parameters('slfHstTrrg2_properties_ADF-SelfHost_parameters_dest_tableNamePipeline')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'ADF-TestPrac_ArmTemplate_0')]"
+			]
+		}
+	]
+}

@@ -1,0 +1,695 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "ADF-TestPrac"
+		},
+		"selfHstTriggr_properties_ADF-SelfHost_parameters_src_tableNamePipeline": {
+			"type": "string",
+			"defaultValue": "percentagetmp"
+		},
+		"selfHstTriggr_properties_ADF-SelfHost_parameters_dest_tableNamePipeline": {
+			"type": "string",
+			"defaultValue": "percentagetmp_2"
+		},
+		"slfHstTrrg2_properties_ADF-SelfHost_parameters_src_tableNamePipeline": {
+			"type": "string",
+			"defaultValue": "RevBud_p1"
+		},
+		"slfHstTrrg2_properties_ADF-SelfHost_parameters_dest_tableNamePipeline": {
+			"type": "string",
+			"defaultValue": "RevBud_pp"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/selfHost_SQLDS')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "selfHost_Sql_LnkSrv",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"tblName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "SqlServerTable",
+				"schema": [
+					{
+						"name": "TransID",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "Amount",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": {
+						"value": "@dataset().tblName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/prac_Dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "inputDataFlowDS",
+								"type": "DatasetReference"
+							},
+							"name": "srcInputDataFlow"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "outputDataFlowDS",
+								"type": "DatasetReference"
+							},
+							"name": "CleanRecords"
+						},
+						{
+							"dataset": {
+								"referenceName": "outputDataFlowDS",
+								"type": "DatasetReference"
+							},
+							"name": "VendorCount"
+						}
+					],
+					"transformations": [
+						{
+							"name": "drvColDataFlow"
+						},
+						{
+							"name": "aggregate1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Title as string,",
+						"          Vendor_ID as string,",
+						"          GL_Date as string,",
+						"          AP_Control_Acct as string,",
+						"          Amount as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> srcInputDataFlow",
+						"srcInputDataFlow derive(AP_Control_Acct = replace(AP_Control_Acct, \"-\", \"\")) ~> drvColDataFlow",
+						"drvColDataFlow aggregate(groupBy(Vendor_ID),",
+						"     vendorCount = count()) ~> aggregate1",
+						"drvColDataFlow sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Name as string,",
+						"          Category as string,",
+						"          Status as string,",
+						"          Error as string",
+						"     ),",
+						"     partitionFileNames:['outputDataflowFinal.csv'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> CleanRecords",
+						"aggregate1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          Name as string,",
+						"          Category as string,",
+						"          Status as string,",
+						"          Error as string",
+						"     ),",
+						"     partitionFileNames:['vendorCountOutput'],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> VendorCount"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF-SelfHost')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "CopyRec_SijianTestDB",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [
+							{
+								"name": "Source",
+								"value": "dbo.@{pipeline().parameters.src_tableNamePipeline}"
+							},
+							{
+								"name": "Destination",
+								"value": "dbo.@{pipeline().parameters.dest_tableNamePipeline}"
+							}
+						],
+						"typeProperties": {
+							"source": {
+								"type": "SqlServerSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "SqlServerSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "selfHost_SQLDS",
+								"type": "DatasetReference",
+								"parameters": {
+									"tblName": {
+										"value": "@pipeline().parameters.src_tableNamePipeline",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "selfHost_SQLDS",
+								"type": "DatasetReference",
+								"parameters": {
+									"tblName": {
+										"value": "@pipeline().parameters.dest_tableNamePipeline",
+										"type": "Expression"
+									}
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"src_tableNamePipeline": {
+						"type": "string"
+					},
+					"dest_tableNamePipeline": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-02-26T07:19:08Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/selfHost_SQLDS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_DataFlow')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "azDataFlowPipeline",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "prac_Dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"srcInputDataFlow": {},
+									"CleanRecords": {},
+									"VendorCount": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-06-04T04:45:36Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/prac_Dataflow1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADF_Prac3_VariableActivity')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Set value for FileType",
+						"type": "SetVariable",
+						"dependsOn": [],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "FileType",
+							"value": {
+								"value": "@replace(pipeline().parameters.FileName,'Sales','')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Append ListofFiles_Var",
+						"type": "AppendVariable",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "ListOfFiles_Appd",
+							"value": {
+								"value": "@pipeline().parameters.FileName_Appd",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "If Condition1",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "Set value for FileType",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@equals(variables('FileType'),'Daily')",
+								"type": "Expression"
+							},
+							"ifFalseActivities": [
+								{
+									"name": "Copy data2",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"wildcardFileName": "HourlySales.txt",
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobStorageWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "SalesID",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "SalesID",
+														"type": "String",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "Period",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "Period",
+														"type": "String",
+														"physicalType": "String"
+													}
+												},
+												{
+													"source": {
+														"name": "Amount",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "Amount",
+														"type": "String",
+														"physicalType": "String"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "srcSetDataset",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "srcSetDataset",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								}
+							],
+							"ifTrueActivities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"wildcardFileName": "*.txt",
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
+										},
+										"sink": {
+											"type": "SqlServerSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"mappings": [
+												{
+													"source": {
+														"name": "TransID",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "TransID"
+													}
+												},
+												{
+													"source": {
+														"name": "Amount",
+														"type": "String",
+														"physicalType": "String"
+													},
+													"sink": {
+														"name": "Amount"
+													}
+												}
+											],
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "srcSetDataset",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "selfHost_SQLDS",
+											"type": "DatasetReference",
+											"parameters": {
+												"tblName": {
+													"value": "@equals(pipeline().parameters.FileName,'DailySales')",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"FileName": {
+						"type": "string",
+						"defaultValue": "DailySales"
+					},
+					"FileName_Appd": {
+						"type": "string",
+						"defaultValue": "SalesIndia.txt"
+					}
+				},
+				"variables": {
+					"FileType": {
+						"type": "String"
+					},
+					"ListOfFiles_Appd": {
+						"type": "Array",
+						"defaultValue": [
+							"SalesUS",
+							"SalesUK"
+						]
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-03-14T05:11:11Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/selfHost_SQLDS')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MasterPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ExecuteCopyActivity",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "ADF_Prac1_CopyActivity",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2024-03-14T05:19:20Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/schdTrrg')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "ADF_Prac1_CopyActivity",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 2,
+						"startTime": "2024-02-03T02:50:00",
+						"endTime": "2024-02-03T03:00:00",
+						"timeZone": "Pacific Standard Time"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/selfHstTriggr')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "ADF-SelfHost",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"src_tableNamePipeline": "[parameters('selfHstTriggr_properties_ADF-SelfHost_parameters_src_tableNamePipeline')]",
+							"dest_tableNamePipeline": "[parameters('selfHstTriggr_properties_ADF-SelfHost_parameters_dest_tableNamePipeline')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 15,
+						"startTime": "2024-02-14T09:16:00",
+						"endTime": "2024-02-14T09:20:00",
+						"timeZone": "Pacific Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/ADF-SelfHost')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/slfHstTrrg2')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "ADF-SelfHost",
+							"type": "PipelineReference"
+						},
+						"parameters": {
+							"src_tableNamePipeline": "[parameters('slfHstTrrg2_properties_ADF-SelfHost_parameters_src_tableNamePipeline')]",
+							"dest_tableNamePipeline": "[parameters('slfHstTrrg2_properties_ADF-SelfHost_parameters_dest_tableNamePipeline')]"
+						}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 15,
+						"startTime": "2024-02-14T09:15:00",
+						"endTime": "2024-02-14T09:20:00",
+						"timeZone": "Pacific Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/ADF-SelfHost')]"
+			]
+		}
+	]
+}

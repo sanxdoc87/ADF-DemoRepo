@@ -1,0 +1,48 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "ADF-TestPrac"
+		},
+		"azBlogStrg_dataFlow_connectionString": {
+			"value": ""
+		},
+		"az_OpnDckTknVal_accountKey": {
+			"value": ""
+		},
+		"dynamicLinkedServices_connectionString": {
+			"value": "Integrated Security=False;Data Source=@{linkedService().ServerName};Initial Catalog=@{linkedService().DatabaseName};User ID=@{linkedService().UserName};Password=@{linkedService().Password}"
+		},
+		"linkedService_adfStrgPrac1_connectionString": {
+			"value": ""
+		},
+		"selfHost_Sql_LnkSrv_connectionString": {
+			"value": "Integrated Security=True;Data Source=PCD01APP04;Initial Catalog=sijian_test"
+		},
+		"selfHost_Sql_LnkSrv_password": {
+			"value": ""
+		},
+		"RestService1_properties_typeProperties_url": {
+			"value": "https://neutron.opendock.com/auth/login"
+		},
+		"az_OpnDckTknVal_properties_typeProperties_url": {
+			"value": "https://azsynapsegen2.dfs.core.windows.net/"
+		},
+		"selfHost_Sql_LnkSrv_properties_typeProperties_userName": {
+			"value": "PCDL\\sandip.pandey"
+		},
+		"selfHstTriggr_properties_ADF-SelfHost_parameters_src_tableNamePipeline": {
+			"value": "percentagetmp"
+		},
+		"selfHstTriggr_properties_ADF-SelfHost_parameters_dest_tableNamePipeline": {
+			"value": "percentagetmp_2"
+		},
+		"slfHstTrrg2_properties_ADF-SelfHost_parameters_src_tableNamePipeline": {
+			"value": "RevBud_p1"
+		},
+		"slfHstTrrg2_properties_ADF-SelfHost_parameters_dest_tableNamePipeline": {
+			"value": "RevBud_pp"
+		}
+	}
+}
