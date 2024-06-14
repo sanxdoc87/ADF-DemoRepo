@@ -1,0 +1,24 @@
+{
+	"name": "demoCsv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "azBlogStrg_dataFlow",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "outputDataflowFinal.csv",
+				"folderPath": "output",
+				"container": "adf-container-test1"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
